@@ -159,10 +159,82 @@ public class BinarySearchTree<T extends Comparable<T>> implements BSTInterface<T
     // Removes an element e from this BST such that e.compareTo(element) == 0
     public void remove (T element)
     {
+        root = remove(element, root);
     }
+
+    private BinaryNode<T> remove(T element, BinaryNode<T> node)
+    {
+        if (node == null)
+        {
+            return null;
+        }
+        else if (element.compareTo(node.getInfo()) < 0)
+        {
+            node.setLeft(remove(element, node.getLeft()));
+        }
+        else if (element.compareTo(node.getInfo()) > 0)
+        {
+            node.setRight(remove(element, node.getRight()));
+        }
+        else
+        {
+            node = removeNode(node);
+        }
+
+        return node;
+    }
+
+    private BinaryNode<T> removeNode(BinaryNode<T> node)
+    {
+        if (node.getLeft() == null)
+        {
+            return node.getRight();
+        }
+        else if (node.getRight() == null)
+        {
+            return node.getLeft();
+        }
+        else
+        {
+            T data = getPredecessor(node.getLeft());
+            node.setInfo(data);
+            node.setLeft(remove(data, node.getLeft()));
+            return node;
+        }
+    }
+
+    private T getPredecessor(BinaryNode<T> subtree)
+    {
+        BinaryNode<T> temp = subtree;
+        while (temp.getRight() != null)
+        {
+            temp = temp.getRight();
+        }
+        return temp.getInfo();
+    }
+
+   
+
+
 
     // Restructures this BST to be optimally balanced
     public void balance()
     {
+        List<T> values = inorderTraverse();
+        root = buildBalanced(values, 0, values.size() - 1);
+    }
+
+    private BinaryNode<T> buildBalanced(List<T> values, int first, int last)
+    {
+        if (first > last)
+        {
+            return null;
+        }
+
+        int middle = (first + last) / 2;
+        BinaryNode<T> node = new BinaryNode<>(values.get(middle));
+        node.setLeft(buildBalanced(values, first, middle - 1));
+        node.setRight(buildBalanced(values, middle + 1, last));
+        return node;
     }
 }
